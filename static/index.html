@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f8fc">
+  <meta name="description" content="Continuity turns conversations and documents into useful summaries and persistent project memory.">
+  <title>Continuity — Keep your work in context</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Continuity home">
+        <span class="brand-mark" aria-hidden="true">↻</span>
+        <span class="brand-copy"><strong>continuity</strong><small>KEEP YOUR WORK IN CONTEXT</small></span>
+      </a>
+      <div class="top-actions">
+        <span id="aiStatus" class="mode-status">Checking mode…</span>
+        <label class="sr-only" for="projectSelect">Current project</label>
+        <select id="projectSelect" class="project-select" aria-label="Current project">
+          <option value="">New project on first send</option>
+        </select>
+        <button class="button button-light" id="newProjectButton" type="button">＋ New project</button>
+        <button class="button button-memory" id="memoryButton" type="button"><span aria-hidden="true">◇</span> Saved memory <span id="memoryCount" class="count-badge hidden">0</span></button>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section class="intro-section">
+        <div class="eyebrow">YOUR PROJECT MEMORY ASSISTANT</div>
+        <h1>Bring your work.<br><span>I'll keep the context.</span></h1>
+        <p>Paste a conversation, share a document or add an image. Choose what you need back. Continuity will process it and preserve the important parts of your ongoing work.</p>
+      </section>
+
+      <section class="composer-card" aria-labelledby="outputQuestion">
+        <div class="composer-topline">
+          <div>
+            <div class="step-label">FIRST, TELL ME WHAT YOU NEED</div>
+            <h2 id="outputQuestion">What should I produce?</h2>
+          </div>
+          <span class="optional-label">Choose one to continue</span>
+        </div>
+
+        <div class="output-options" role="group" aria-label="Expected output">
+          <button class="output-option" type="button" data-output="summary" aria-pressed="false">
+            <span class="option-icon">≡</span><span class="option-copy"><strong>Summary</strong><small>Key points, without the noise</small></span>
+          </button>
+          <button class="output-option" type="button" data-output="final_conclusion" aria-pressed="false">
+            <span class="option-icon">✓</span><span class="option-copy"><strong>Final conclusion</strong><small>The bottom line and recommendation</small></span>
+          </button>
+          <button class="output-option" type="button" data-output="project_status" aria-pressed="false">
+            <span class="option-icon">↻</span><span class="option-copy"><strong>Project status</strong><small>Goal, approach, done and pending</small></span>
+          </button>
+        </div>
+
+        <form id="processForm">
+          <div id="newProjectNameWrap" class="new-project-name-wrap">
+            <label for="firstProjectName">Project name <span>(optional)</span></label>
+            <input id="firstProjectName" maxlength="160" placeholder="e.g. Continuity, Final-year project…">
+          </div>
+          <label class="sr-only" for="materialText">Content to process</label>
+          <textarea id="materialText" class="material-input" rows="7" maxlength="90000" placeholder="Paste an AI conversation, project notes, requirements, feedback or any context you want me to understand…"></textarea>
+          <div class="dropzone" id="dropZone">
+            <input id="fileInput" type="file" hidden multiple accept=".txt,.md,.csv,.json,.pdf,.docx,.png,.jpg,.jpeg,.webp,.gif">
+            <button class="attach-button" id="attachButton" type="button"><span aria-hidden="true">＋</span> Add documents or images</button>
+            <span class="dropzone-hint">TXT, MD, CSV, JSON, PDF, DOCX, PNG, JPG, WEBP</span>
+          </div>
+          <div id="attachmentList" class="attachment-list hidden" aria-live="polite"></div>
+          <div class="composer-footer">
+            <div class="input-tip"><span aria-hidden="true">✦</span><span id="inputTip">Choose an output above, then paste or attach your material.</span></div>
+            <button class="button button-primary send-button" id="processButton" type="submit" disabled><span>Process & remember</span><span aria-hidden="true">↑</span></button>
+          </div>
+        </form>
+        <p class="privacy-note">Your text and project memory are saved in your local database. If an AI API key is configured, submitted content is sent to that provider for processing.</p>
+      </section>
+
+      <div id="workingState" class="working-state hidden" role="status"><span class="spinner"></span><div><strong>Working through your material…</strong><small>Preparing the requested output and updating useful project memory.</small></div></div>
+
+      <section id="resultSection" class="result-section hidden" aria-live="polite">
+        <div class="result-heading">
+          <div><div class="step-label">YOUR RESULT</div><h2 id="resultTitle">Project status</h2></div>
+          <div class="result-actions"><span id="resultMode" class="result-mode"></span><button id="copyResultButton" class="button button-light" type="button">Copy result</button><button id="clearResultButton" class="icon-button" type="button" aria-label="Hide result">×</button></div>
+        </div>
+        <article id="resultContent" class="result-content"></article>
+        <div class="memory-update-bar">
+          <span class="memory-update-icon" aria-hidden="true">✦</span>
+          <div class="memory-update-copy"><strong id="memoryUpdateTitle">Project memory updated</strong><small id="memoryUpdateDetail"></small></div>
+          <button id="reviewNeedsButton" class="button button-light hidden" type="button">Check unclear items</button>
+        </div>
+        <div id="processingWarning" class="processing-warning hidden"></div>
+      </section>
+
+      <section id="resumeSection" class="resume-section hidden">
+        <div><strong>Picking this project up later?</strong><p>Generate a fresh project status from the latest saved memory.</p></div>
+        <button class="button button-light" id="resumeButton" type="button">Resume from memory <span aria-hidden="true">→</span></button>
+      </section>
+
+      <footer class="page-footer"><span>Continuity</span><span>Preserve the important parts. Continue from where you stopped.</span></footer>
+    </main>
+  </div>
+
+  <dialog id="projectDialog" class="dialog">
+    <form id="projectForm" class="dialog-card">
+      <div class="dialog-header"><div><div class="step-label">NEW WORKSPACE</div><h2>Create a project</h2><p>Give this stream of work a name. Its memory will stay separate from your other projects.</p></div><button type="button" class="icon-button" data-close-dialog="projectDialog" aria-label="Close">×</button></div>
+      <label for="projectName">Project name</label><input id="projectName" maxlength="160" placeholder="e.g. AI Debug Copilot" required>
+      <label for="projectGoal">What are you trying to achieve? <span>(optional)</span></label><textarea id="projectGoal" rows="3" maxlength="5000" placeholder="The main goal or outcome you want to preserve"></textarea>
+      <div class="dialog-actions"><button type="button" class="button button-light" data-close-dialog="projectDialog">Cancel</button><button type="submit" class="button button-primary">Create project</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="memoryDialog" class="dialog memory-dialog">
+    <div class="dialog-card">
+      <div class="dialog-header"><div><div class="step-label">PROJECT MEMORY</div><h2 id="memoryDialogTitle">What Continuity remembers</h2><p>Clear items are saved automatically. Only uncertain or conflicting items need you.</p></div><button type="button" class="icon-button" data-close-dialog="memoryDialog" aria-label="Close">×</button></div>
+      <div id="memoryDialogBody" class="memory-dialog-body"><div class="loading-inline">Loading saved memory…</div></div>
+    </div>
+  </dialog>
+</body>
+</html>
