@@ -78,12 +78,3 @@ continuity_project/
 ├── .gitignore
 └── README.md
 ```
-
-## Notes and limitations
-
-- This is a local student MVP and does not include authentication or multi-user access controls. Do not expose the development server publicly.
-- LLM confidence is not proof. Automatically saved memories must remain inspectable and correctable, and the app preserves audit events.
-- Basic local mode is intentionally limited; it does not provide the same understanding as an LLM.
-- The conflict detector is conservative and lexical, not a complete semantic contradiction detector.
-- The database uses SQLAlchemy `create_all` for simple startup and does not include a migration framework. Back up `continuity.db` before replacing project code.
-- Resume context is copied by the user into another AI chat; this MVP does not inject memory into ChatGPT, Claude or other tools automatically.
